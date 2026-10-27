@@ -26,7 +26,7 @@ h1,.bx h2{font:800 15px system-ui;letter-spacing:.38em;background:linear-gradien
 #sq{position:absolute;inset:0;display:grid;grid:repeat(8,1fr)/repeat(8,1fr)}#pl{position:absolute;inset:0}
 .q{position:relative}.l{background:var(--l)}.d{background:var(--d)}
 .q i,.q b{position:absolute;font:700 9px system-ui;font-style:normal;opacity:.75}.q i{left:3px;top:2px}.q b{right:3px;bottom:1px}.l i,.l b{color:var(--d)}.d i,.d b{color:var(--l)}
-.last{box-shadow:inset 0 0 0 99px #ffd76a66}.sel{box-shadow:inset 0 0 0 99px #7cf5ffaa}.hint{box-shadow:inset 0 0 0 3px #6bffb0,inset 0 0 0 99px #6bffb044}
+.last{box-shadow:inset 0 0 0 99px #ffd76a66}.sel{box-shadow:inset 0 0 0 99px #7cf5ffaa}.hint{outline:3px solid #39ff88;outline-offset:-3px;z-index:1;animation:hp .9s ease-in-out infinite alternate}@keyframes hp{from{box-shadow:inset 0 0 0 99px #39ff8855}to{box-shadow:inset 0 0 0 99px #39ff88aa}}
 .chk{background:radial-gradient(circle,#ff2d55 0,#ff2d5500 75%)!important}
 .mv:after,.cp:after{content:"";position:absolute;border-radius:50%}.mv:after{inset:37%;background:#0a0c1c80}.cp:after{inset:5%;border:4px solid #0a0c1c80}
 .p{position:absolute;left:0;top:0;width:12.5%;height:12.5%;display:flex;align-items:center;justify-content:center;font:calc(var(--s)/8*.84)/1 "Noto Sans Symbols 2","Segoe UI Symbol","Apple Symbols",sans-serif;transform:translate(calc(var(--x)*100%),calc(var(--y)*100%));transition:transform .22s cubic-bezier(.3,.9,.3,1),opacity .2s;pointer-events:none;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 2px #0009)}
@@ -41,12 +41,12 @@ h1,.bx h2{font:800 15px system-ui;letter-spacing:.38em;background:linear-gradien
 .rw{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}.rw small{width:100%;text-align:left;color:#9fb0ee}
 .ch{flex:1;min-width:22%;padding:9px 3px;border-radius:12px;border:1px solid #ffffff2e;background:#ffffff10;color:#eef0ff;font-size:13px}.ch.on{background:linear-gradient(135deg,var(--a),#b388ff);color:#0a0c1c;font-weight:700;border-color:#0000}
 .go{width:100%;padding:13px;border:0;border-radius:14px;margin-top:6px;background:linear-gradient(135deg,var(--a),#b388ff);color:#0a0c1c;font:800 16px system-ui}.go.s{background:#ffffff1a;color:#eef0ff;font-weight:500}
-</style></head><body>
+#tip{display:none;width:calc(var(--s) + 21px);padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.35;color:#d9ffe9;border:1px solid #39ff8888}</style></head><body>
 <h1>XADREZ CRISTAL</h1>
 <div class="pn gl" id="top"></div>
 <div id="w"><div id="ev"><i></i></div><div id="bd"><div id="sq"></div><div id="pl"></div></div></div>
 <div class="pn gl" id="bot"></div>
-<div id="ml"></div><div id="stt"></div>
+<div id="ml"></div><div id="stt"></div><div id="tip" class="gl"></div>
 <div id="bar"><button class="gl" id="bu">↶</button><button class="gl" id="bh">💡</button><button class="gl" id="bf">⇅</button><button class="gl" id="bt">🎨</button><button class="gl" id="bs">🔊</button><button class="gl" id="bm">☰</button></div>
 <div class="ov on" id="menu"><div class="bx gl"><h2>XADREZ CRISTAL</h2><p id="ms"></p>
 <div class="rw"><small>Modo</small><button class="ch" data-k="mode" data-v="ai">Contra a Furina</button><button class="ch" data-k="mode" data-v="pvp">2 jogadores</button></div>
@@ -126,7 +126,7 @@ const hp=k=>{try{TG&&TG.HapticFeedback.impactOccurred(k)}catch(e){}};
 function pos(e,i){e.style.setProperty('--x',st.flip?7-(i&7):i&7);e.style.setProperty('--y',st.flip?7-(i>>3):i>>3)}
 function sqs(){sqe.innerHTML='';for(let p=0;p<64;p++){const i=st.flip?63-p:p,e=document.createElement('div');e.innerHTML=(p%8==0?'<i>'+(8-(i>>3))+'</i>':'')+(p>55?'<b>'+F[i&7]+'</b>':'');Q[i]=e;sqe.appendChild(e)}}
 function draw(){pl.innerHTML='';P=[];for(let i=0;i<64;i++){const v=s.b[i];if(!v)continue;const e=document.createElement('div');e.className='p '+(v>0?'w':'b');e.textContent=G[Math.abs(v)-1];pos(e,i);pl.appendChild(e);P[i]=e}marks();cards();evb()}
-function marks(){const ck=inChk(s,s.t),ks=s.t>0?s.kw:s.kb;for(let i=0;i<64;i++){const c=['q',((i>>3)+(i&7))&1?'d':'l'],m=st.tg.find(x=>x.t==i);
+function marks(){if(!st.hint)$('#tip').style.display='none';const ck=inChk(s,s.t),ks=s.t>0?s.kw:s.kb;for(let i=0;i<64;i++){const c=['q',((i>>3)+(i&7))&1?'d':'l'],m=st.tg.find(x=>x.t==i);
  if(st.last&&st.last.includes(i))c.push('last');if(st.hint&&st.hint.includes(i))c.push('hint');if(st.sel==i)c.push('sel');if(ck&&i==ks)c.push('chk');if(m)c.push(s.b[i]||m.x&1?'cp':'mv');Q[i].className=c.join(' ')}}
 function cards(){const lost=c=>{const n=[0,8,2,2,2,1];for(const v of s.b)if(v&&(v>0?1:-1)==c)n[Math.abs(v)]--;const a=[];for(let t=5;t>0;t--)for(let k=0;k<n[t];k++)a.push(t*c);return a},
  val=a=>a.reduce((x,v)=>x+VAL[Math.abs(v)],0)/100,lw=lost(1),lb=lost(-1),top=st.flip?1:-1,ai=st.mode=='ai';
@@ -175,7 +175,23 @@ bd.addEventListener('pointermove',e=>{if(!drag||!drag.el)return;if(!drag.mv&&Mat
  const r=bd.getBoundingClientRect(),w=r.width/8;drag.el.classList.add('dr');drag.el.style.transform='translate('+(e.clientX-r.left-w/2)+'px,'+(e.clientY-r.top-w/2)+'px)'});
 bd.addEventListener('pointerup',e=>{if(!drag)return;const d=drag;drag=null;if(!d.el)return;d.el.classList.remove('dr');d.el.style.transform='';if(d.mv){const i=sqAt(e);if(i>=0&&i!==d.i)tryMove(d.i,i)}});
 $('#bu').onclick=()=>{if(st.busy||!mv.length||st.mode=='on')return;rebuild(Math.max(0,mv.length-(st.mode=='ai'?(s.t==st.me||st.over?2:1):1)));st.go=true;save();next()};
-$('#bh').onclick=()=>{if(!canMove()||st.mode=='on')return;say('Pensando numa dica…');setTimeout(()=>{const m=pick({...s,b:s.b.slice()},3);if(m){st.hint=[m.f,m.t];marks();say('Dica no tabuleiro')}},40)};
+/*dica-ia*/const HR='https://ntfy.sh/',HQ=new URLSearchParams(location.search).get('h')||'',HID=Math.random().toString(36).slice(2,8);let hb=0;
+const uci=m=>F[m.f&7]+(8-(m.f>>3))+F[m.t&7]+(8-(m.t>>3))+(m.p?'nbrq'[m.p-2]:'');
+function fen(){let r='';for(let y=0;y<8;y++){let e=0;for(let x=0;x<8;x++){const v=s.b[y*8+x];if(!v)e++;else{if(e){r+=e;e=0}r+=(v>0?'PNBRQK':'pnbrqk')[Math.abs(v)-1]}}if(e)r+=e;if(y<7)r+='/'}
+ return r+' '+(s.t>0?'w':'b')+' '+(['K','Q','k','q'].filter((_,i)=>s.cs>>i&1).join('')||'-')+' '+(s.ep>=0?F[s.ep&7]+(8-(s.ep>>3)):'-')+' '+s.h+' '+(1+(mv.length>>1))}
+function dica(){if(!canMove()||hb)return;hb=1;say('🧠 Analisando com a IA…');
+ setTimeout(()=>{const n=mv.length,e=pick({...s,b:s.b.slice()},3),eu=e?uci(e):'';
+  const loc=t=>{hb=0;if(e&&st.mode=='ai'){st.hint=[e.f,e.t];marks();say(t)}else say('Dicas só contra a Furina IA')};
+  if(!HQ)return loc('Dica da engine (sem IA)');
+  const rid=HID+Date.now().toString(36);let ok=0;const es=new EventSource(HR+'fjh-'+HQ+'-r-'+rid+'/sse?since=all');
+  const fin=o=>{if(ok)return;ok=1;es.close();if(!o)return loc('IA indisponível: dica da engine');hb=0;if(mv.length!=n)return;
+   if(!o.ok)return say(o.t||'Dica não permitida');
+   const m=lg.find(x=>uci(x)==o.m);if(!m)return loc('Dica da engine');
+   st.hint=[m.f,m.t];marks();say('💡 Dica no tabuleiro');$('#tip').textContent='🧠 '+o.t;$('#tip').style.display='block'};
+  es.onmessage=v=>{try{const d=JSON.parse(v.data);if(d.event=='message')fin(JSON.parse(d.message))}catch(x){}};
+  fetch(HR+'fjh-'+HQ,{method:'POST',body:JSON.stringify({rid,mode:st.mode,fen:fen(),lg:lg.map(uci),eng:eu,last:sans.slice(-6).join(' ')})}).catch(()=>fin(0));
+  setTimeout(()=>fin(0),32000)},30)}
+$('#bh').onclick=dica;
 $('#bf').onclick=()=>{st.flip=!st.flip;sqs();draw();clk()};
 function theme(n){st.th=n%TH.length;LS.ct=st.th;const r=document.documentElement.style;r.setProperty('--l',TH[st.th][0]);r.setProperty('--d',TH[st.th][1])}
 $('#bt').onclick=()=>{theme(st.th+1);say('Tabuleiro '+TH[st.th][2])};
