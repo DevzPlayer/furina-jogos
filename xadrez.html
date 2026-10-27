@@ -3,7 +3,7 @@
 <meta name="theme-color" content="#07081a"><title>Xadrez Cristal</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root{--l:#d9cff0;--d:#8a77c2;--a:#7cf5ff;--g:#ffd76a;--s:min(calc(100vw - 60px),520px,calc(100dvh - 330px))}
+:root{--l:#d9cff0;--d:#8a77c2;--a:#7cf5ff;--g:#ffd76a;--s:min(calc(100vw - 60px),520px,calc(100dvh - 390px))}
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;user-select:none}
 html,body{height:100%;overflow:hidden;background:#07081a;color:#eef0ff;font:14px system-ui,sans-serif}
 body{display:flex;flex-direction:column;align-items:center;gap:8px;padding:max(8px,env(safe-area-inset-top)) 10px max(8px,env(safe-area-inset-bottom))}
@@ -41,7 +41,7 @@ h1,.bx h2{font:800 15px system-ui;letter-spacing:.38em;background:linear-gradien
 .rw{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}.rw small{width:100%;text-align:left;color:#9fb0ee}
 .ch{flex:1;min-width:22%;padding:9px 3px;border-radius:12px;border:1px solid #ffffff2e;background:#ffffff10;color:#eef0ff;font-size:13px}.ch.on{background:linear-gradient(135deg,var(--a),#b388ff);color:#0a0c1c;font-weight:700;border-color:#0000}
 .go{width:100%;padding:13px;border:0;border-radius:14px;margin-top:6px;background:linear-gradient(135deg,var(--a),#b388ff);color:#0a0c1c;font:800 16px system-ui}.go.s{background:#ffffff1a;color:#eef0ff;font-weight:500}
-#tip{display:none;width:calc(var(--s) + 21px);padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.35;color:#d9ffe9;border:1px solid #39ff8888}</style></head><body>
+#tip{display:none;width:calc(var(--s) + 21px);padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.35;color:#d9ffe9;border:1px solid #39ff8888}.inf{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.inf>b{font-weight:600;display:flex;align-items:center;gap:6px}.inf>b em{font:700 12px system-ui;color:var(--g);background:#ffd76a22;padding:1px 7px;border-radius:8px}.cx{display:flex;flex-wrap:wrap;gap:5px;margin:0}.cc{display:flex;flex-direction:column;align-items:center;padding:2px 7px 3px;border-radius:10px;background:#ffffff14;border:1px solid #ffffff1c}.cc .mini{font-size:22px;line-height:1.1;margin:0}.cc small{font:600 9px system-ui;color:#b8c2f0;white-space:nowrap}.pn{height:auto}</style></head><body>
 <h1>XADREZ CRISTAL</h1>
 <div class="pn gl" id="top"></div>
 <div id="w"><div id="ev"><i></i></div><div id="bd"><div id="sq"></div><div id="pl"></div></div></div>
@@ -129,9 +129,13 @@ function sqs(){sqe.innerHTML='';for(let p=0;p<64;p++){const i=st.flip?63-p:p,e=d
 function draw(){pl.innerHTML='';P=[];for(let i=0;i<64;i++){const v=s.b[i];if(!v)continue;const e=document.createElement('div');e.className='p '+(v>0?'w':'b');e.textContent=G[Math.abs(v)-1];pos(e,i);pl.appendChild(e);P[i]=e}marks();cards();evb()}
 function marks(){if(!st.hint)$('#tip').style.display='none';const ck=inChk(s,s.t),ks=s.t>0?s.kw:s.kb;for(let i=0;i<64;i++){const c=['q',((i>>3)+(i&7))&1?'d':'l'],m=st.tg.find(x=>x.t==i);
  if(st.last&&st.last.includes(i))c.push('last');if(st.hint&&st.hint.includes(i))c.push('hint');if(st.sel==i)c.push('sel');if(ck&&i==ks)c.push('chk');if(m)c.push(s.b[i]||m.x&1?'cp':'mv');Q[i].className=c.join(' ')}}
-function cards(){const lost=c=>{const n=[0,8,2,2,2,1];for(const v of s.b)if(v&&(v>0?1:-1)==c)n[Math.abs(v)]--;const a=[];for(let t=5;t>0;t--)for(let k=0;k<n[t];k++)a.push(t*c);return a},
- val=a=>a.reduce((x,v)=>x+VAL[Math.abs(v)],0)/100,lw=lost(1),lb=lost(-1),top=st.flip?1:-1,ai=st.mode=='ai';
- const h=c=>{const got=c>0?lb:lw,d=c>0?val(lb)-val(lw):val(lw)-val(lb);return'<span class="av '+(c>0?'aw':'ab')+'">'+(ai&&c!=st.me?'🤖':c>0?'♔':'♚')+'</span><b>'+nm(c)+'</b><span class="cx">'+got.map(v=>'<span class="p mini '+(v>0?'w':'b')+'">'+G[Math.abs(v)-1]+'</span>').join('')+(d>0?'<em>+'+d+'</em>':'')+'</span><span class="ck">'+fmt(st.cl[c>0?0:1])+'</span>'};
+function cards(){const NM=['','Peão','Cavalo','Bispo','Torre','Dama'];
+ const lost=c=>{const n=[0,8,2,2,2,1];for(const v of s.b)if(v&&(v>0?1:-1)==c)n[Math.abs(v)]--;return n.map(x=>Math.max(0,x))},
+ val=n=>n.reduce((x,k,t)=>x+k*VAL[t],0)/100,lw=lost(1),lb=lost(-1),top=st.flip?1:-1,ai=st.mode=='ai';
+ const nome=c=>typeof nm=='function'?nm(c):(ai?(c==st.me?'Você':'Furina IA'):c>0?'Brancas':'Pretas');
+ const h=c=>{const got=c>0?lb:lw,d=Math.round(c>0?val(lb)-val(lw):val(lw)-val(lb));let ch='';
+  for(let t=5;t>0;t--)if(got[t]>0)ch+='<span class="cc"><span class="p mini '+(c>0?'b':'w')+'">'+G[t-1]+'</span><small>'+NM[t]+(got[t]>1?' ×'+got[t]:'')+'</small></span>';
+  return'<span class="av '+(c>0?'aw':'ab')+'">'+(ai&&c!=st.me?'🤖':c>0?'♔':'♚')+'</span><span class="inf"><b>'+nome(c)+(d>0?' <em>+'+d+'</em>':'')+'</b>'+(ch?'<span class="cx">'+ch+'</span>':'')+'</span><span class="ck">'+fmt(st.cl[c>0?0:1])+'</span>'};
  $('#top').innerHTML=h(top);$('#bot').innerHTML=h(-top);$('#top').classList.toggle('on',s.t==top&&!st.over);$('#bot').classList.toggle('on',s.t==-top&&!st.over)}
 function clk(){const t=st.flip?1:-1;$('#top .ck').textContent=fmt(st.cl[t>0?0:1]);$('#bot .ck').textContent=fmt(st.cl[t>0?1:0])}
 function evb(){$('#ev i').style.height=(50+50*Math.tanh(ev(s)/450))+'%';$('#ev').classList.toggle('f',st.flip)}
