@@ -3,7 +3,7 @@
 <meta name="theme-color" content="#07081a"><title>Xadrez Cristal</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root{--l:#e8e2f4;--d:#7a6ea8;--a:#7cf5ff;--g:#ffd76a;--s:min(calc(100vw - 60px),520px,calc(100dvh - 330px))}
+:root{--l:#d9cff0;--d:#8a77c2;--a:#7cf5ff;--g:#ffd76a;--s:min(calc(100vw - 60px),520px,calc(100dvh - 330px))}
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;user-select:none}
 html,body{height:100%;overflow:hidden;background:#07081a;color:#eef0ff;font:14px system-ui,sans-serif}
 body{display:flex;flex-direction:column;align-items:center;gap:8px;padding:max(8px,env(safe-area-inset-top)) 10px max(8px,env(safe-area-inset-bottom))}
@@ -30,7 +30,7 @@ h1,.bx h2{font:800 15px system-ui;letter-spacing:.38em;background:linear-gradien
 .chk{background:radial-gradient(circle,#ff2d55 0,#ff2d5500 75%)!important}
 .mv:after,.cp:after{content:"";position:absolute;border-radius:50%}.mv:after{inset:37%;background:#0a0c1c80}.cp:after{inset:5%;border:4px solid #0a0c1c80}
 .p{position:absolute;left:0;top:0;width:12.5%;height:12.5%;display:flex;align-items:center;justify-content:center;font:calc(var(--s)/8*.84)/1 "Noto Sans Symbols 2","Segoe UI Symbol","Apple Symbols",sans-serif;transform:translate(calc(var(--x)*100%),calc(var(--y)*100%));transition:transform .22s cubic-bezier(.3,.9,.3,1),opacity .2s;pointer-events:none;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 2px #0009)}
-.p.w{background-image:linear-gradient(#fff,#b8c2ff);-webkit-text-stroke:1.3px #20244f}.p.b{background-image:linear-gradient(#6a72b4,#080a1e);-webkit-text-stroke:1.1px #ffffffaa}
+/*pecas-v2*/.p.w{background-image:linear-gradient(#fffefa,#fff0c4 55%,#e9c978);-webkit-text-stroke:2.2px #0a0818;filter:drop-shadow(0 0 1px #000) drop-shadow(0 3px 2px #000a)}.p.b{background-image:linear-gradient(#34376a,#03040c 70%);-webkit-text-stroke:1.7px #f1f4ff;filter:drop-shadow(0 0 1.4px #fff) drop-shadow(0 3px 2px #000a)}
 .p.x{opacity:0}.p.dr{transition:none;z-index:9;filter:drop-shadow(0 9px 8px #000b)}
 .mini{position:static;width:auto;height:auto;font-size:16px;transform:none;margin-right:-5px;filter:none}.ch .mini{font-size:44px;margin:0}
 #ml{width:calc(var(--s) + 21px);height:22px;overflow-x:auto;white-space:nowrap;font:12px ui-monospace,monospace;color:#aeb8ee;scrollbar-width:none}#ml b{color:var(--g);margin:0 3px 0 8px}
@@ -119,7 +119,7 @@ function san(s,m,L){const a=Math.abs(s.b[m.f]),cap=s.b[m.t]||m.x&1;let t='';
 /* jogo */
 let s,mv,sans,keys,lg,P=[],Q=[],drag=null,AC;
 const st={mode:'ai',lv:2,col:'w',tm:0,me:1,flip:false,sel:-1,tg:[],last:null,hint:null,busy:false,over:false,go:false,res:'*',cl:[0,0],k:0,th:+LS.ct||0,snd:LS.cs!=='0'};
-const bd=$('#bd'),sqe=$('#sq'),pl=$('#pl'),TH=[['#e8e2f4','#7a6ea8','Ametista'],['#ecd9b6','#a9754f','Madeira'],['#dfe9d3','#5f8f6b','Jade'],['#d6ecf7','#4f78a8','Gelo']];
+const bd=$('#bd'),sqe=$('#sq'),pl=$('#pl'),TH=[['#d9cff0','#8a77c2','Ametista'],['#ead7b0','#b0805a','Madeira'],['#d7e6c9','#6d9a78','Jade'],['#d3e8f5','#5f87b8','Gelo']];
 const say=t=>$('#stt').textContent=t,fmt=ms=>st.tm?Math.floor(ms/6e4)+':'+String(Math.floor(ms/1e3)%60).padStart(2,'0'):'';
 function snd(f,d,ty='sine',v=.1,t0=0){if(!st.snd)return;try{AC=AC||new(window.AudioContext||webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+t0;o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d)}catch(e){}}
 const hp=k=>{try{TG&&TG.HapticFeedback.impactOccurred(k)}catch(e){}};
