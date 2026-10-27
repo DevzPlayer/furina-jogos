@@ -130,18 +130,18 @@ function marks(){const ck=inChk(s,s.t),ks=s.t>0?s.kw:s.kb;for(let i=0;i<64;i++){
  if(st.last&&st.last.includes(i))c.push('last');if(st.hint&&st.hint.includes(i))c.push('hint');if(st.sel==i)c.push('sel');if(ck&&i==ks)c.push('chk');if(m)c.push(s.b[i]||m.x&1?'cp':'mv');Q[i].className=c.join(' ')}}
 function cards(){const lost=c=>{const n=[0,8,2,2,2,1];for(const v of s.b)if(v&&(v>0?1:-1)==c)n[Math.abs(v)]--;const a=[];for(let t=5;t>0;t--)for(let k=0;k<n[t];k++)a.push(t*c);return a},
  val=a=>a.reduce((x,v)=>x+VAL[Math.abs(v)],0)/100,lw=lost(1),lb=lost(-1),top=st.flip?1:-1,ai=st.mode=='ai';
- const h=c=>{const got=c>0?lb:lw,d=c>0?val(lb)-val(lw):val(lw)-val(lb);return'<span class="av '+(c>0?'aw':'ab')+'">'+(ai&&c!=st.me?'🤖':c>0?'♔':'♚')+'</span><b>'+(ai?(c==st.me?'Você':'Furina IA'):c>0?'Brancas':'Pretas')+'</b><span class="cx">'+got.map(v=>'<span class="p mini '+(v>0?'w':'b')+'">'+G[Math.abs(v)-1]+'</span>').join('')+(d>0?'<em>+'+d+'</em>':'')+'</span><span class="ck">'+fmt(st.cl[c>0?0:1])+'</span>'};
+ const h=c=>{const got=c>0?lb:lw,d=c>0?val(lb)-val(lw):val(lw)-val(lb);return'<span class="av '+(c>0?'aw':'ab')+'">'+(ai&&c!=st.me?'🤖':c>0?'♔':'♚')+'</span><b>'+nm(c)+'</b><span class="cx">'+got.map(v=>'<span class="p mini '+(v>0?'w':'b')+'">'+G[Math.abs(v)-1]+'</span>').join('')+(d>0?'<em>+'+d+'</em>':'')+'</span><span class="ck">'+fmt(st.cl[c>0?0:1])+'</span>'};
  $('#top').innerHTML=h(top);$('#bot').innerHTML=h(-top);$('#top').classList.toggle('on',s.t==top&&!st.over);$('#bot').classList.toggle('on',s.t==-top&&!st.over)}
 function clk(){const t=st.flip?1:-1;$('#top .ck').textContent=fmt(st.cl[t>0?0:1]);$('#bot .ck').textContent=fmt(st.cl[t>0?1:0])}
 function evb(){$('#ev i').style.height=(50+50*Math.tanh(ev(s)/450))+'%';$('#ev').classList.toggle('f',st.flip)}
 function ml(){let h='';sans.forEach((x,i)=>{if(i%2==0)h+='<b>'+(i/2+1)+'.</b>';h+=x+' '});const e=$('#ml');e.innerHTML=h;e.scrollLeft=1e6}
-const canMove=()=>!st.over&&!st.busy&&st.go&&(st.mode=='pvp'||s.t==st.me);
+const canMove=()=>!st.over&&!st.busy&&st.go&&(st.mode=='pvp'||(s.t==st.me&&(st.mode!='on'||R.length>1)));
 function over(){if(!lg.length)return inChk(s,s.t)?{r:'mate',w:-s.t}:{r:'stale'};if(s.h>=100)return{r:'50'};if(keys.filter(k=>k==keys[keys.length-1]).length>=3)return{r:'rep'};
  const o=s.b.filter(v=>v&&Math.abs(v)!=6);if(!o.length||(o.length==1&&Math.abs(o[0])>1&&Math.abs(o[0])<4))return{r:'mat'};return null}
-function save(){if(st.over)return LS.removeItem('xc');LS.xc=JSON.stringify({mode:st.mode,lv:st.lv,me:st.me,flip:st.flip,tm:st.tm,cl:st.cl,mv:mv.map(m=>[m.f,m.t,m.x,m.p])})}
+function save(){if(st.mode=='on')return;if(st.over)return LS.removeItem('xc');LS.xc=JSON.stringify({mode:st.mode,lv:st.lv,me:st.me,flip:st.flip,tm:st.tm,cl:st.cl,mv:mv.map(m=>[m.f,m.t,m.x,m.p])})}
 function stats(k){const o=JSON.parse(LS.xcs||'{"w":0,"l":0,"d":0}');o[k]++;LS.xcs=JSON.stringify(o)}
 function play(m){const sn=san(s,m,lg),cp=!!(s.b[m.t]||m.x&1),c=s.t,ci=m.x&1?m.t+8*c:m.t;
- mk(s,m);mv.push(m);sans.push(sn);keys.push(key(s));
+ mk(s,m);mv.push(m);sans.push(sn);keys.push(key(s));if(st.mode=='on'&&!st.rem)pub({k:'mv',i:mv.length-1,f:m.f,t:m.t,x:m.x,pr:m.p});
  if(cp){const x=P[ci];if(x){x.classList.add('x');setTimeout(()=>x.remove(),230);P[ci]=null}}
  const e=P[m.f];if(e){P[m.f]=null;P[m.t]=e;pos(e,m.t);if(m.p)e.textContent=G[m.p-1]}
  if(m.x&2){const r=P[m.t+1];P[m.t+1]=null;P[m.t-1]=r;r&&pos(r,m.t-1)}
@@ -151,10 +151,10 @@ function play(m){const sn=san(s,m,lg),cp=!!(s.b[m.t]||m.x&1),c=s.t,ci=m.x&1?m.t+
  if(f)return fim(f);
  if(inChk(s,s.t)){snd(720,.12);snd(960,.16,'sine',.1,.09)}
  next()}
-function next(){const ai=st.mode=='ai';if(ai&&s.t!=st.me)return aiMove();say((inChk(s,s.t)?'Xeque! ':'')+(ai?'Sua vez':s.t>0?'Vez das brancas':'Vez das pretas'))}
+function next(){const ai=st.mode=='ai';if(st.mode=='on')return say(R.length<2?'Aguardando adversário…':!st.me?'Assistindo à partida':(inChk(s,s.t)?'Xeque! ':'')+(s.t==st.me?'Sua vez':'Vez do adversário'));if(ai&&s.t!=st.me)return aiMove();say((inChk(s,s.t)?'Xeque! ':'')+(ai?'Sua vez':s.t>0?'Vez das brancas':'Vez das pretas'))}
 function aiMove(){st.busy=true;const k=st.k;say('Furina está pensando…');setTimeout(()=>{if(k!=st.k)return;const m=pick({...s,b:s.b.slice()},st.lv);st.busy=false;if(st.over||!m)return;play(lg.find(x=>x.f==m.f&&x.t==m.t&&x.p==m.p))},60)}
-function fim(f){st.over=true;st.busy=false;st.go=false;const ai=st.mode=='ai',w=f.r=='mate'||f.r=='time';let t,sb='';
- if(w){st.res=f.w>0?'1-0':'0-1';t=(f.r=='mate'?'Xeque-mate! ':'Tempo esgotado! ')+(ai?(f.w==st.me?'Você venceu 🏆':'A Furina venceu'):(f.w>0?'Brancas':'Pretas')+' vencem 🏆')}
+function fim(f){st.over=true;st.busy=false;st.go=false;const ai=st.mode=='ai',w=f.r=='mate'||f.r=='time'||f.r=='res';let t,sb='';
+ if(w){st.res=f.w>0?'1-0':'0-1';t=(f.r=='mate'?'Xeque-mate! ':f.r=='res'?'Desistência! ':'Tempo esgotado! ')+(ai?(f.w==st.me?'Você venceu 🏆':'A Furina venceu'):(st.mode=='on'?nm(f.w)+' venceu':(f.w>0?'Brancas':'Pretas')+' vencem')+' 🏆')}
  else{st.res='1/2-1/2';t='Empate';sb={stale:'Rei afogado.','50':'Regra dos 50 lances.',rep:'Tripla repetição.',mat:'Material insuficiente.'}[f.r]}
  if(ai)stats(w?(f.w==st.me?'w':'l'):'d');
  [523,659,784,1047].forEach((q,i)=>snd(q,.25,'triangle',.1,i*.12));hp('heavy');save();cards();
@@ -174,8 +174,8 @@ bd.addEventListener('pointerdown',e=>{if(!canMove())return;const i=sqAt(e);if(i<
 bd.addEventListener('pointermove',e=>{if(!drag||!drag.el)return;if(!drag.mv&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<6)return;drag.mv=true;
  const r=bd.getBoundingClientRect(),w=r.width/8;drag.el.classList.add('dr');drag.el.style.transform='translate('+(e.clientX-r.left-w/2)+'px,'+(e.clientY-r.top-w/2)+'px)'});
 bd.addEventListener('pointerup',e=>{if(!drag)return;const d=drag;drag=null;if(!d.el)return;d.el.classList.remove('dr');d.el.style.transform='';if(d.mv){const i=sqAt(e);if(i>=0&&i!==d.i)tryMove(d.i,i)}});
-$('#bu').onclick=()=>{if(st.busy||!mv.length)return;rebuild(Math.max(0,mv.length-(st.mode=='ai'?(s.t==st.me||st.over?2:1):1)));st.go=true;save();next()};
-$('#bh').onclick=()=>{if(!canMove())return;say('Pensando numa dica…');setTimeout(()=>{const m=pick({...s,b:s.b.slice()},3);if(m){st.hint=[m.f,m.t];marks();say('Dica no tabuleiro')}},40)};
+$('#bu').onclick=()=>{if(st.busy||!mv.length||st.mode=='on')return;rebuild(Math.max(0,mv.length-(st.mode=='ai'?(s.t==st.me||st.over?2:1):1)));st.go=true;save();next()};
+$('#bh').onclick=()=>{if(!canMove()||st.mode=='on')return;say('Pensando numa dica…');setTimeout(()=>{const m=pick({...s,b:s.b.slice()},3);if(m){st.hint=[m.f,m.t];marks();say('Dica no tabuleiro')}},40)};
 $('#bf').onclick=()=>{st.flip=!st.flip;sqs();draw();clk()};
 function theme(n){st.th=n%TH.length;LS.ct=st.th;const r=document.documentElement.style;r.setProperty('--l',TH[st.th][0]);r.setProperty('--d',TH[st.th][1])}
 $('#bt').onclick=()=>{theme(st.th+1);say('Tabuleiro '+TH[st.th][2])};
@@ -185,9 +185,25 @@ function menu(){st.go=false;const o=JSON.parse(LS.xcs||'{"w":0,"l":0,"d":0}');$(
 document.querySelectorAll('.ch[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k;st[k]=k=='lv'||k=='tm'?+b.dataset.v:b.dataset.v;menu()});
 $('#play').onclick=()=>{$('#menu').classList.remove('on');newGame()};
 $('#cont').onclick=()=>{try{const o=JSON.parse(LS.xc);Object.assign(st,{mode:o.mode,lv:o.lv,me:o.me,flip:o.flip,tm:o.tm,cl:o.cl});mv=o.mv.map(a=>({f:a[0],t:a[1],x:a[2],p:a[3]}));rebuild(mv.length);st.go=true;$('#menu').classList.remove('on');next()}catch(e){LS.removeItem('xc');menu()}};
-$('#bm').onclick=menu;$('#em').onclick=()=>{$('#end').classList.remove('on');menu()};
+$('#bm').onclick=()=>st.mode=='on'?(!st.over&&R.length>1&&st.me&&confirm('Desistir da partida?')&&pub({k:'rs',p:PID})):menu();$('#em').onclick=()=>{$('#end').classList.remove('on');menu()};
 $('#re').onclick=()=>{$('#end').classList.remove('on');newGame()};
 $('#cp2').onclick=()=>{let r='';sans.forEach((x,i)=>{if(i%2==0)r+=(i/2+1)+'. ';r+=x+' '});r+=st.res;try{navigator.clipboard.writeText(r);$('#es').textContent='PGN copiado.'}catch(e){prompt('PGN',r)}};
 setInterval(()=>{if(!st.tm||!st.go||st.over)return;const i=s.t>0?0:1;st.cl[i]-=250;if(st.cl[i]<=0){st.cl[i]=0;clk();return fim({r:'time',w:-s.t})}clk()},250);
-theme(st.th);$('#bs').textContent=st.snd?'🔊':'🔇';s=init();mv=[];sans=[];keys=[key(s)];lg=legal(s);sqs();draw();menu();
+/* ===== online 1v1 (relay ntfy) ===== */
+const R=[],PID=LS.xp||(LS.xp=Math.random().toString(36).slice(2,10)),Q2=new URLSearchParams(location.search),RELAY='https://ntfy.sh/',seen=new Set();
+let TOP='',ES;
+const pub=o=>{try{fetch(RELAY+TOP,{method:'POST',body:JSON.stringify(o)}).catch(()=>{})}catch(e){}};
+function seat(){const i=R.findIndex(r=>r.p==PID);st.me=i==0?1:i==1?-1:0;st.flip=st.me==-1;sqs();draw();next()}
+function onMsg(d){let o;try{o=JSON.parse(d.message)}catch(e){return}if(!o||seen.has(d.id))return;seen.add(d.id);
+ if(o.k=='hi'){if(!R.some(r=>r.p==o.p)){R.push({p:o.p,n:String(o.n||'Jogador').slice(0,24)});seat()}}
+ else if(o.k=='mv'&&o.i==mv.length&&!st.over){const m=lg.find(x=>x.f==o.f&&x.t==o.t&&x.p==(o.pr||0));if(m){st.rem=1;play(m);st.rem=0}}
+ else if(o.k=='rs'&&!st.over){const i=R.findIndex(r=>r.p==o.p);if(i>=0&&i<2)fim({r:'res',w:i==0?-1:1})}}
+function online(){st.mode='on';st.tm=0;TOP='fjx-'+Q2.get('sala');const ex=+Q2.get('e')||0;
+ const nome=(TG&&TG.initDataUnsafe&&TG.initDataUnsafe.user&&TG.initDataUnsafe.user.first_name)||LS.xn||(LS.xn=(prompt('Seu nome:')||'Jogador'));
+ $('#menu').classList.remove('on');$('#re').style.display='none';$('#em').textContent='Fechar';$('#em').onclick=()=>TG&&TG.close?TG.close():$('#end').classList.remove('on');
+ mv=[];st.me=0;rebuild(0);st.go=true;say('Conectando à sala…');
+ ES=new EventSource(RELAY+TOP+'/sse?since=all');ES.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.event=='message')onMsg(d)}catch(x){}};
+ setTimeout(()=>{if(R.some(r=>r.p==PID))return;if(ex&&Date.now()>ex){say('⌛ Sala expirada');bd.style.opacity=.4;ES.close();return}pub({k:'hi',p:PID,n:nome})},1500)}
+const nm=c=>st.mode=='on'?((R[c>0?0:1]||{}).n||'Aguardando…'):st.mode=='ai'?(c==st.me?'Você':'Furina IA'):c>0?'Brancas':'Pretas';
+theme(st.th);$('#bs').textContent=st.snd?'🔊':'🔇';s=init();mv=[];sans=[];keys=[key(s)];lg=legal(s);sqs();draw();if(Q2.get('sala'))online();else menu();
 </script></body></html>
