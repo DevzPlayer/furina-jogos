@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Jogos</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#0f1220;--card:#1a1f36;--fg:#eef0ff;--mut:#9aa3c7;--ac:#6c8cff;--acfg:#fff;--ok:#4ade80;--bad:#f87171;--line:rgba(127,127,127,.28)}
+@media (prefers-color-scheme:light){:root{--bg:#f4f6ff;--card:#fff;--fg:#161a33;--mut:#5d6591;--ac:#4361ee}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);overscroll-behavior:none;-webkit-user-select:none;user-select:none}
+#app{max-width:520px;margin:0 auto;padding:16px}
+header{display:flex;align-items:center;gap:10px;margin-bottom:14px;min-height:40px}
+h1{font-size:20px;margin:0;flex:1}
+#pontos{font-weight:700;color:var(--ac)}
+button{font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer;touch-action:manipulation}
+button:active{transform:scale(.97)}
+button.pri{background:var(--ac);color:var(--acfg);border-color:transparent;font-weight:600}
+button.on{background:var(--ac);color:var(--acfg);border-color:transparent}
+button:disabled{opacity:.5}
+#menu{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:16px;min-height:128px}
+.card .em{font-size:36px;line-height:1}
+.card b{font-size:16px}
+.card small{color:var(--mut);font-size:13px}
+.seg{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.seg button{padding:8px 12px;font-size:14px}
+.status{text-align:center;font-weight:600;min-height:26px;margin:6px 0 12px}
+.centro{display:flex;flex-direction:column;align-items:center;gap:12px}
+.mut{color:var(--mut);font-size:14px;text-align:center}
+.velha{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:330px;margin:0 auto}
+.velha button{aspect-ratio:1;font-size:48px;font-weight:700;padding:0}
+.velha button.x{color:var(--ac)}
+.velha button.o{color:#ffb86c}
+.velha button.vit{background:var(--ok);color:#06210f}
+.mem{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:360px;margin:0 auto}
+.mem button{aspect-ratio:1;font-size:34px;padding:0}
+.mem button.virada{background:var(--card)}
+.mem button.fechada{background:var(--ac);color:transparent}
+.mem button.par{background:var(--ok);color:#06210f}
+canvas{width:100%;max-width:340px;aspect-ratio:1;background:var(--card);border:1px solid var(--line);border-radius:14px;touch-action:none;display:block;margin:0 auto}
+.dpad{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(2,56px);gap:8px;justify-content:center;margin-top:12px}
+.dpad button{padding:0;font-size:22px}
+.dpad .u{grid-column:2;grid-row:1}.dpad .l{grid-column:1;grid-row:2}.dpad .d{grid-column:2;grid-row:2}.dpad .r{grid-column:3;grid-row:2}
+.b2048{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:var(--line);padding:8px;border-radius:14px;max-width:340px;margin:0 auto;touch-action:none}
+.t{aspect-ratio:1;border-radius:10px;background:var(--card);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:26px}
+.t.v2{background:#eee4da;color:#776e65}.t.v4{background:#ede0c8;color:#776e65}.t.v8{background:#f2b179;color:#fff}.t.v16{background:#f59563;color:#fff}.t.v32{background:#f67c5f;color:#fff}.t.v64{background:#f65e3b;color:#fff}.t.v128{background:#edcf72;color:#fff;font-size:22px}.t.v256{background:#edcc61;color:#fff;font-size:22px}.t.v512{background:#edc850;color:#fff;font-size:22px}.t.v1024{background:#edc53f;color:#fff;font-size:18px}.t.v2048{background:#edc22e;color:#fff;font-size:18px}.t.vbig{background:#3c3a32;color:#fff;font-size:16px}
+.ppt{display:flex;gap:10px;justify-content:center}
+.ppt button{font-size:44px;padding:12px 16px}
+.arena{font-size:64px;display:flex;gap:28px;justify-content:center;min-height:84px;align-items:center}
+.palavra{font-size:30px;letter-spacing:6px;font-weight:800;text-align:center;min-height:44px;word-break:break-all}
+.teclado{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.teclado button{width:38px;height:44px;padding:0;font-weight:700}
+.teclado button.certa{background:var(--ok);color:#06210f}
+.teclado button.errada{background:var(--bad);color:#2a0606}
+#aviso{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:10px;z-index:9}
+#aviso[hidden]{display:none}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <button id="voltar" hidden>‹ Menu</button>
+    <h1 id="titulo">🎮 Jogos</h1>
+    <span id="pontos"></span>
+  </header>
+  <main id="menu"></main>
+  <section id="jogo" hidden></section>
+</div>
+<div id="aviso" hidden><div style="font-size:56px">🔒</div><h2>Jogos desligados</h2><p class="mut">O dono desativou os jogos por enquanto.</p></div>
+
+<script>
+(function () {
+  'use strict';
+  var tg = window.Telegram && window.Telegram.WebApp;
+  try {
+    if (tg) {
+      tg.ready(); tg.expand();
+      if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+      var p = tg.themeParams || {}, r = document.documentElement.style;
+      if (p.bg_color) r.setProperty('--bg', p.bg_color);
+      if (p.text_color) r.setProperty('--fg', p.text_color);
+      if (p.hint_color) r.setProperty('--mut', p.hint_color);
+      if (p.secondary_bg_color) r.setProperty('--card', p.secondary_bg_color);
+      if (p.button_color) r.setProperty('--ac', p.button_color);
+      if (p.button_text_color) r.setProperty('--acfg', p.button_text_color);
+    }
+  } catch (e) {}
+
+  var store = {
+    get: function (k, d) { try { var v = localStorage.getItem('jg_' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem('jg_' + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  function vibra() { try { tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred('light'); } catch (e) {} }
+  function rnd(n) { return Math.floor(Math.random() * n); }
+  function h(tag, props) {
+    var e = document.createElement(tag);
+    props = props || {};
+    for (var k in props) {
+      var v = props[k];
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v);
+      else if (v !== false && v != null) e.setAttribute(k, v);
+    }
+    for (var i = 2; i < arguments.length; i++) {
+      var c = arguments[i];
+      if (c == null || c === false) continue;
+      if (Array.isArray(c)) c.forEach(function (x) { if (x != null) e.append(x.nodeType ? x : document.createTextNode(x)); });
+      else e.append(c.nodeType ? c : document.createTextNode(c));
+    }
+    return e;
+  }
+  function seg(opcoes, atual, aoMudar) {
+    var box = h('div', { class: 'seg' });
+    opcoes.forEach(function (o) {
+      var b = h('button', { text: o[1], class: o[0] === atual ? 'on' : '', onclick: function () {
+        Array.prototype.forEach.call(box.children, function (x) { x.className = ''; });
+        b.className = 'on'; aoMudar(o[0]);
+      } });
+      box.append(b);
+    });
+    return box;
+  }
+
+  /* ---------- 1. Jogo da Velha ---------- */
+  function velha(el, api) {
+    var L = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    var modo = 'dificil', b, vez, fim, linhaV = [];
+    var placar = store.get('velha', { V: 0, D: 0, E: 0 });
+    function res(t) {
+      for (var i = 0; i < L.length; i++) { var l = L[i]; if (t[l[0]] && t[l[0]] === t[l[1]] && t[l[0]] === t[l[2]]) return { j: t[l[0]], l: l }; }
+      return t.every(Boolean) ? { j: 'E', l: [] } : null;
+    }
+    function mm(t, jog, prof) {
+      var r = res(t);
+      if (r) return r.j === 'O' ? 10 - prof : r.j === 'X' ? prof - 10 : 0;
+      var best = jog === 'O' ? -99 : 99;
+      for (var i = 0; i < 9; i++) {
+        if (t[i]) continue;
+        t[i] = jog; var s = mm(t, jog === 'O' ? 'X' : 'O', prof + 1); t[i] = '';
+        best = jog === 'O' ? Math.max(best, s) : Math.min(best, s);
+      }
+      return best;
+    }
+    function cpu() {
+      var livres = []; for (var i = 0; i < 9; i++) if (!b[i]) livres.push(i);
+      if (modo === 'facil') return livres[rnd(livres.length)];
+      var melhor = -99, mv = [];
+      livres.forEach(function (i) { b[i] = 'O'; var s = mm(b, 'X', 1); b[i] = ''; if (s > melhor) { melhor = s; mv = [i]; } else if (s === melhor) mv.push(i); });
+      return mv[rnd(mv.length)];
+    }
+    var status = h('div', { class: 'status' }), grade = h('div', { class: 'velha' });
+    function novo() { b = Array(9).fill(''); vez = 'X'; fim = false; linhaV = []; render(); }
+    function jogar(i) {
+      if (fim || b[i]) return;
+      b[i] = vez; vibra();
+      var r = res(b);
+      if (r) return acabar(r);
+      vez = vez === 'X' ? 'O' : 'X';
+      render();
+      if (modo !== '2p' && vez === 'O') setTimeout(function () { if (!fim) jogar(cpu()); }, 350);
+    }
+    function acabar(r) {
+      fim = true; linhaV = r.l;
+      if (r.j === 'E') { placar.E++; status.textContent = 'Empate!'; }
+      else if (modo === '2p') { status.textContent = 'Venceu: ' + r.j + '!'; }
+      else if (r.j === 'X') { placar.V++; status.textContent = 'Você venceu! 🎉'; }
+      else { placar.D++; status.textContent = 'A máquina venceu 🤖'; }
+      store.set('velha', placar); render(true);
+    }
+    function render(final) {
+      grade.innerHTML = '';
+      b.forEach(function (v, i) {
+        grade.append(h('button', { text: v, class: (v === 'X' ? 'x ' : v === 'O' ? 'o ' : '') + (linhaV.indexOf(i) >= 0 ? 'vit' : ''), onclick: function () { if (modo === '2p' || vez === 'X') jogar(i); } }));
+      });
+      if (!final) status.textContent = fim ? status.textContent : 'Vez de ' + vez + (modo !== '2p' && vez === 'O' ? ' (máquina)' : '');
+      api.pontos(modo === '2p' ? '' : placar.V + 'V ' + placar.E + 'E ' + placar.D + 'D');
+    }
+    el.append(
+      seg([['facil', 'Fácil'], ['dificil', 'Difícil'], ['2p', '2 jogadores']], modo, function (m) { modo = m; novo(); }),
+      status, grade,
+      h('div', { class: 'centro', style: 'margin-top:14px' }, h('button', { class: 'pri', text: 'Nova partida', onclick: novo }))
+    );
+    novo();
+    return function () {};
+  }
+
+  /* ---------- 2. Memória ---------- */
+  function memoria(el, api) {
+    var EM = ['🐶','🐱','🦊','🐼','🐸','🦁','🐵','🐙','🍕','🚀','🎈','⚽'];
+    var cartas, aberta, trava, jogadas, pares, seg0, timer, melhor = store.get('memoria', 0);
+    var grade = h('div', { class: 'mem' }), status = h('div', { class: 'status' });
+    function embaralhar(a) { for (var i = a.length - 1; i > 0; i--) { var j = rnd(i + 1); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+    function novo() {
+      clearInterval(timer);
+      var s = embaralhar(EM.slice()).slice(0, 8);
+      cartas = embaralhar(s.concat(s)).map(function (e) { return { e: e, v: false, p: false }; });
+      aberta = null; trava = false; jogadas = 0; pares = 0; seg0 = 0;
+      timer = setInterval(function () { seg0++; placar(); }, 1000);
+      render(); placar();
+    }
+    function placar() { api.pontos('⏱ ' + seg0 + 's · ' + jogadas + ' jogadas'); }
+    function clicar(i) {
+      var c = cartas[i];
+      if (trava || c.v || c.p) return;
+      c.v = true; vibra();
+      if (aberta === null) { aberta = i; render(); return; }
+      jogadas++;
+      var a = cartas[aberta];
+      if (a.e === c.e) {
+        a.p = c.p = true; pares++; aberta = null; render();
+        if (pares === 8) {
+          clearInterval(timer);
+          var rec = !melhor || jogadas < melhor;
+          if (rec) { melhor = jogadas; store.set('memoria', melhor); }
+          status.textContent = '🎉 Você completou em ' + jogadas + ' jogadas e ' + seg0 + 's' + (rec ? ' (recorde!)' : '');
+        }
+      } else {
+        trava = true; render();
+        var ant = aberta; aberta = null;
+        setTimeout(function () { cartas[ant].v = false; c.v = false; trava = false; render(); }, 800);
+      }
+      placar();
+    }
+    function render() {
+      grade.innerHTML = '';
+      cartas.forEach(function (c, i) {
+        grade.append(h('button', { text: (c.v || c.p) ? c.e : '?', class: c.p ? 'par' : c.v ? 'virada' : 'fechada', onclick: function () { clicar(i); } }));
+      });
+      if (pares < 8) status.textContent = melhor ? 'Recorde: ' + melhor + ' jogadas' : 'Encontre os pares';
+    }
+    el.append(status, grade, h('div', { class: 'centro', style: 'margin-top:14px' }, h('button', { class: 'pri', text: 'Reiniciar', onclick: novo })));
+    novo();
+    return function () { clearInterval(timer); };
+  }
+
+  /* ---------- 3. Cobrinha ---------- */
+  function cobra(el, api) {
+    var N = 15, C = 20, s, d, nd, f, pts, vivo, tm = null, melhor = store.get('cobra', 0);
+    var cv = h('canvas', { width: N * C, height: N * C }), ctx = cv.getContext('2d');
+    var status = h('div', { class: 'status', text: 'Deslize, use as setas ou os botões' });
+    var btn = h('button', { class: 'pri', text: 'Começar', onclick: iniciar });
+    function comida() { do { f = { x: rnd(N), y: rnd(N) }; } while (s.some(function (p) { return p.x === f.x && p.y === f.y; })); }
+    function reset() { s = [{x:7,y:7},{x:6,y:7},{x:5,y:7}]; d = {x:1,y:0}; nd = d; pts = 0; vivo = true; comida(); api.pontos('0 · recorde ' + melhor); desenhar(); }
+    function iniciar() { clearInterval(tm); reset(); status.textContent = 'Boa sorte!'; btn.textContent = 'Reiniciar'; tm = setInterval(passo, 130); }
+    function dir(x, y) { if (x === -d.x && y === -d.y) return; nd = { x: x, y: y }; }
+    function passo() {
+      d = nd;
+      var c = { x: s[0].x + d.x, y: s[0].y + d.y };
+      if (c.x < 0 || c.y < 0 || c.x >= N || c.y >= N || s.some(function (p) { return p.x === c.x && p.y === c.y; })) {
+        vivo = false; clearInterval(tm); desenhar();
+        if (pts > melhor) { melhor = pts; store.set('cobra', melhor); }
+        status.textContent = 'Fim de jogo! ' + pts + ' pontos'; btn.textContent = 'Jogar de novo'; return;
+      }
+      s.unshift(c);
+      if (c.x === f.x && c.y === f.y) { pts++; vibra(); comida(); api.pontos(pts + ' · recorde ' + Math.max(melhor, pts)); } else s.pop();
+      desenhar();
+    }
+    function desenhar() {
+      var cs = getComputedStyle(document.documentElement);
+      ctx.fillStyle = cs.getPropertyValue('--card').trim() || '#1a1f36'; ctx.fillRect(0, 0, N * C, N * C);
+      ctx.fillStyle = '#f87171'; ctx.beginPath(); ctx.arc(f.x * C + C / 2, f.y * C + C / 2, C / 2 - 2, 0, 7); ctx.fill();
+      s.forEach(function (p, i) { ctx.fillStyle = i === 0 ? '#4ade80' : '#22c55e'; ctx.fillRect(p.x * C + 1, p.y * C + 1, C - 2, C - 2); });
+    }
+    var x0, y0;
+    cv.addEventListener('touchstart', function (e) { var t = e.touches[0]; x0 = t.clientX; y0 = t.clientY; e.preventDefault(); }, { passive: false });
+    cv.addEventListener('touchend', function (e) {
+      var t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+      if (Math.abs(dx) > Math.abs(dy)) dir(dx > 0 ? 1 : -1, 0); else dir(0, dy > 0 ? 1 : -1);
+      e.preventDefault();
+    }, { passive: false });
+    function tecla(e) {
+      var m = { ArrowUp: [0,-1], ArrowDown: [0,1], ArrowLeft: [-1,0], ArrowRight: [1,0] }[e.key];
+      if (m) { dir(m[0], m[1]); e.preventDefault(); }
+    }
+    document.addEventListener('keydown', tecla);
+    var pad = h('div', { class: 'dpad' },
+      h('button', { class: 'u', text: '▲', onclick: function () { dir(0, -1); } }),
+      h('button', { class: 'l', text: '◀', onclick: function () { dir(-1, 0); } }),
+      h('button', { class: 'd', text: '▼', onclick: function () { dir(0, 1); } }),
+      h('button', { class: 'r', text: '▶', onclick: function () { dir(1, 0); } })
+    );
+    el.append(status, cv, pad, h('div', { class: 'centro', style: 'margin-top:14px' }, btn));
+    reset();
+    return function () { clearInterval(tm); document.removeEventListener('keydown', tecla); };
+  }
+
+  /* ---------- 4. 2048 ---------- */
+  function g2048(el, api) {
+    var g, pts, acabou, melhor = store.get('2048', 0);
+    var board = h('div', { class: 'b2048' }), status = h('div', { class: 'status' });
+    function novo() { g = [0,1,2,3].map(function () { return [0,0,0,0]; }); pts = 0; acabou = false; add(); add(); render(); }
+    function add() {
+      var v = []; g.forEach(function (r, i) { r.forEach(function (x, j) { if (!x) v.push([i, j]); }); });
+      if (!v.length) return; var p = v[rnd(v.length)]; g[p[0]][p[1]] = Math.random() < 0.9 ? 2 : 4;
+    }
+    function linha(a) {
+      var r = a.filter(Boolean);
+      for (var i = 0; i < r.length - 1; i++) { if (r[i] === r[i + 1]) { r[i] *= 2; pts += r[i]; r.splice(i + 1, 1); } }
+      while (r.length < 4) r.push(0); return r;
+    }
+    function mover(dir) {
+      if (acabou) return;
+      var antes = JSON.stringify(g), i, j;
+      if (dir < 2) { g = g.map(function (r) { return dir === 0 ? linha(r) : linha(r.slice().reverse()).reverse(); }); }
+      else {
+        for (j = 0; j < 4; j++) {
+          var c = g.map(function (r) { return r[j]; });
+          c = dir === 2 ? linha(c) : linha(c.slice().reverse()).reverse();
+          for (i = 0; i < 4; i++) g[i][j] = c[i];
+        }
+      }
+      if (JSON.stringify(g) !== antes) { vibra(); add(); fimDeJogo(); render(); }
+    }
+    function fimDeJogo() {
+      if (pts > melhor) { melhor = pts; store.set('2048', melhor); }
+      var i, j;
+      for (i = 0; i < 4; i++) for (j = 0; j < 4; j++) {
+        if (!g[i][j] || (j < 3 && g[i][j] === g[i][j + 1]) || (i < 3 && g[i][j] === g[i + 1][j])) return;
+      }
+      acabou = true;
+    }
+    function render() {
+      board.innerHTML = '';
+      g.forEach(function (r) { r.forEach(function (n) {
+        board.append(h('div', { class: 't ' + (n ? (n > 2048 ? 'vbig' : 'v' + n) : ''), text: n || '' }));
+      }); });
+      api.pontos(pts + ' · recorde ' + Math.max(melhor, pts));
+      status.textContent = acabou ? 'Sem movimentos! Fim de jogo.' : 'Deslize ou use as setas';
+    }
+    var x0, y0;
+    board.addEventListener('touchstart', function (e) { var t = e.touches[0]; x0 = t.clientX; y0 = t.clientY; e.preventDefault(); }, { passive: false });
+    board.addEventListener('touchend', function (e) {
+      var t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+      if (Math.abs(dx) > Math.abs(dy)) mover(dx < 0 ? 0 : 1); else mover(dy < 0 ? 2 : 3);
+      e.preventDefault();
+    }, { passive: false });
+    function tecla(e) {
+      var m = { ArrowLeft: 0, ArrowRight: 1, ArrowUp: 2, ArrowDown: 3 }[e.key];
+      if (m !== undefined) { mover(m); e.preventDefault(); }
+    }
+    document.addEventListener('keydown', tecla);
+    var pad = h('div', { class: 'dpad' },
+      h('button', { class: 'u', text: '▲', onclick: function () { mover(2); } }),
+      h('button', { class: 'l', text: '◀', onclick: function () { mover(0); } }),
+      h('button', { class: 'd', text: '▼', onclick: function () { mover(3); } }),
+      h('button', { class: 'r', text: '▶', onclick: function () { mover(1); } })
+    );
+    el.append(status, board, pad, h('div', { class: 'centro', style: 'margin-top:14px' }, h('button', { class: 'pri', text: 'Novo jogo', onclick: novo })));
+    novo();
+    return function () { document.removeEventListener('keydown', tecla); };
+  }
+
+  /* ---------- 5. Pedra, Papel e Tesoura ---------- */
+  function ppt(el, api) {
+    var O = [['✊', 'Pedra'], ['✋', 'Papel'], ['✌️', 'Tesoura']];
+    var p = store.get('ppt', { v: 0, e: 0, d: 0 }), seq = 0;
+    var arena = h('div', { class: 'arena', text: '❔  ❔' }), status = h('div', { class: 'status', text: 'Escolha sua jogada' });
+    function pts() { api.pontos(p.v + 'V ' + p.e + 'E ' + p.d + 'D'); }
+    function jogar(i) {
+      var c = rnd(3), r = i === c ? 'e' : ((i - c + 3) % 3 === 1 ? 'v' : 'd');
+      p[r]++; store.set('ppt', p); vibra();
+      arena.textContent = O[i][0] + '  ' + O[c][0];
+      seq = r === 'v' ? seq + 1 : 0;
+      status.textContent = (r === 'v' ? 'Você ganhou! 🎉' : r === 'e' ? 'Empate' : 'Você perdeu 😅') + (seq > 1 ? ' · sequência ' + seq : '');
+      pts();
+    }
+    el.append(status, arena,
+      h('div', { class: 'ppt' }, O.map(function (o, i) { return h('button', { text: o[0], 'aria-label': o[1], onclick: function () { jogar(i); } }); })),
+      h('p', { class: 'mut', text: 'Você · Máquina' }),
+      h('div', { class: 'centro' }, h('button', { text: 'Zerar placar', onclick: function () { p = { v: 0, e: 0, d: 0 }; store.set('ppt', p); seq = 0; arena.textContent = '❔  ❔'; status.textContent = 'Escolha sua jogada'; pts(); } }))
+    );
+    pts();
+    return function () {};
+  }
+
+  /* ---------- 6. Forca ---------- */
+  function forca(el, api) {
+    var P = [
+      ['Animal','elefante'],['Animal','girafa'],['Animal','cachorro'],['Animal','golfinho'],['Animal','borboleta'],
+      ['Fruta','abacaxi'],['Fruta','morango'],['Fruta','melancia'],['Fruta','banana'],['Fruta','laranja'],
+      ['Profissão','professor'],['Profissão','bombeiro'],['Profissão','engenheiro'],['Profissão','medico'],['Profissão','programador'],
+      ['País','brasil'],['País','portugal'],['País','argentina'],['País','japao'],['País','canada'],
+      ['Objeto','computador'],['Objeto','geladeira'],['Objeto','travesseiro'],['Objeto','espelho'],['Objeto','mochila'],
+      ['Tecnologia','teclado'],['Tecnologia','servidor'],['Tecnologia','internet'],['Tecnologia','aplicativo'],['Tecnologia','telegram']
+    ];
+    var MAX = 6, w, cat, acertos, erros, fim, ultima = -1;
+    var vitorias = store.get('forca', 0);
+    var dica = h('div', { class: 'mut' }), pal = h('div', { class: 'palavra' }), vidas = h('div', { class: 'status' }), tec = h('div', { class: 'teclado' });
+    function novo() {
+      var i; do { i = rnd(P.length); } while (i === ultima); ultima = i;
+      cat = P[i][0]; w = P[i][1].toUpperCase(); acertos = []; erros = []; fim = false; render();
+    }
+    function chutar(l) {
+      if (fim || acertos.indexOf(l) >= 0 || erros.indexOf(l) >= 0) return;
+      vibra();
+      if (w.indexOf(l) >= 0) acertos.push(l); else erros.push(l);
+      if (w.split('').every(function (c) { return acertos.indexOf(c) >= 0; })) { fim = 'ganhou'; vitorias++; store.set('forca', vitorias); }
+      else if (erros.length >= MAX) fim = 'perdeu';
+      render();
+    }
+    function render() {
+      dica.textContent = 'Categoria: ' + cat;
+      pal.textContent = w.split('').map(function (c) { return (acertos.indexOf(c) >= 0 || fim === 'perdeu') ? c : '_'; }).join(' ');
+      vidas.textContent = fim === 'ganhou' ? '🎉 Você acertou!' : fim === 'perdeu' ? '💀 Era ' + w : '❤️'.repeat(MAX - erros.length) + '🖤'.repeat(erros.length);
+      tec.innerHTML = '';
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(function (l) {
+        tec.append(h('button', { text: l, disabled: !!fim || acertos.indexOf(l) >= 0 || erros.indexOf(l) >= 0, class: acertos.indexOf(l) >= 0 ? 'certa' : erros.indexOf(l) >= 0 ? 'errada' : '', onclick: function () { chutar(l); } }));
+      });
+      api.pontos(vitorias + ' vitórias');
+    }
+    function tecla(e) { var l = String(e.key).toUpperCase(); if (/^[A-Z]$/.test(l)) chutar(l); }
+    document.addEventListener('keydown', tecla);
+    el.append(dica, pal, vidas, tec, h('div', { class: 'centro', style: 'margin-top:14px' }, h('button', { class: 'pri', text: 'Nova palavra', onclick: novo })));
+    novo();
+    return function () { document.removeEventListener('keydown', tecla); };
+  }
+
+  /* ---------- menu e navegação ---------- */
+  var JOGOS = [
+    { id: 'velha', n: 'Jogo da Velha', e: '⭕', d: 'Contra a máquina ou um amigo', f: velha },
+    { id: 'memoria', n: 'Memória', e: '🧠', d: 'Ache todos os pares', f: memoria },
+    { id: 'cobra', n: 'Cobrinha', e: '🐍', d: 'Coma sem bater', f: cobra },
+    { id: '2048', n: '2048', e: '🔢', d: 'Some até chegar ao 2048', f: g2048 },
+    { id: 'ppt', n: 'Pedra, Papel e Tesoura', e: '✊', d: 'Duelo contra a máquina', f: ppt },
+    { id: 'forca', n: 'Forca', e: '🔤', d: 'Adivinhe a palavra', f: forca }
+  ];
+  var elMenu = document.getElementById('menu'), elJogo = document.getElementById('jogo'),
+      elTitulo = document.getElementById('titulo'), elPontos = document.getElementById('pontos'),
+      elVoltar = document.getElementById('voltar'), limpa = null;
+  var api = { pontos: function (t) { elPontos.textContent = t || ''; } };
+
+  function sair() { if (limpa) { try { limpa(); } catch (e) {} limpa = null; } elJogo.innerHTML = ''; api.pontos(''); }
+  function menu() {
+    sair();
+    elJogo.hidden = true; elMenu.hidden = false; elVoltar.hidden = true; elTitulo.textContent = '🎮 Jogos';
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    if (tg && tg.BackButton) tg.BackButton.hide();
+  }
+  function abrir(id) {
+    var j = JOGOS.filter(function (x) { return x.id === id; })[0];
+    if (!j) return menu();
+    sair();
+    elMenu.hidden = true; elJogo.hidden = false; elVoltar.hidden = false; elTitulo.textContent = j.e + ' ' + j.n;
+    try { history.replaceState(null, '', '#' + id); } catch (e) {}
+    if (tg && tg.BackButton) tg.BackButton.show();
+    limpa = j.f(elJogo, api);
+  }
+  JOGOS.forEach(function (j) {
+    elMenu.append(h('button', { class: 'card', onclick: function () { abrir(j.id); } },
+      h('span', { class: 'em', text: j.e }), h('b', { text: j.n }), h('small', { text: j.d })));
+  });
+  elVoltar.addEventListener('click', menu);
+  if (tg && tg.BackButton) tg.BackButton.onClick(menu);
+
+  var inicio = (location.hash || '').replace('#', '') || new URLSearchParams(location.search).get('g');
+  if (inicio) abrir(inicio);
+  window.addEventListener('hashchange', function () {
+    var id = (location.hash || '').replace('#', '');
+    if (id) abrir(id); else menu();
+  });
+
+  // trava do dono: se o servidor responder 503, mostra o aviso
+  function checar() {
+    fetch('status.json', { cache: 'no-store' }).then(function (r) {
+      var off = r.status === 503;
+      if (r.ok) return r.json().then(function (d) { document.getElementById('aviso').hidden = d.ligado !== false; });
+      document.getElementById('aviso').hidden = !off;
+    }).catch(function () {});
+  }
+  checar(); setInterval(checar, 60000);
+})();
+</script>
+</body>
+</html>
