@@ -187,14 +187,14 @@ function fen(){let r='';for(let y=0;y<8;y++){let e=0;for(let x=0;x<8;x++){const 
 function dica(){if(!canMove()||hb)return;hb=1;say('🧠 Analisando com a IA…');
  setTimeout(()=>{const n=mv.length,e=pick({...s,b:s.b.slice()},3),eu=e?uci(e):'';
   const loc=t=>{hb=0;if(e&&st.mode=='ai'){st.hint=[e.f,e.t];marks();say(t)}else say('Dicas só contra a Furina IA')};
-  if(!HQ)return loc('Dica da engine (sem IA)');
-  const rid=HID+Date.now().toString(36);let ok=0;const es=new EventSource(HR+'fjh-'+HQ+'-r-'+rid+'/sse?since=all');
+  if(!HQ&&!(TG&&TG.initData))return loc('Dica da engine (sem IA)');
+  const rid=HID+Date.now().toString(36);let ok=0;const es=new EventSource(HR+(HQ?'fjh-'+HQ+'-r-':'fjh-pub-r-')+rid+'/sse?since=all');
   const fin=o=>{if(ok)return;ok=1;es.close();if(!o)return loc('IA indisponível: dica da engine');hb=0;if(mv.length!=n)return;
    if(!o.ok)return say(o.t||'Dica não permitida');
    const m=lg.find(x=>uci(x)==o.m);if(!m)return loc('Dica da engine');
    st.hint=[m.f,m.t];marks();say('');$('#tip').textContent='🧠 '+o.t;$('#tip').style.display='block'};
   es.onmessage=v=>{try{const d=JSON.parse(v.data);if(d.event=='message')fin(JSON.parse(d.message))}catch(x){}};
-  fetch(HR+'fjh-'+HQ,{method:'POST',body:JSON.stringify({rid,mode:st.mode,fen:fen(),lg:lg.map(uci),eng:eu,last:sans.slice(-6).join(' ')})}).catch(()=>fin(0));
+  fetch(HR+(HQ?'fjh-'+HQ:'fjh-pub'),{method:'POST',body:JSON.stringify({rid,id:HQ?'':TG.initData,mode:st.mode,fen:fen(),lg:lg.map(uci),eng:eu,last:sans.slice(-6).join(' ')})}).catch(()=>fin(0));
   setTimeout(()=>fin(0),32000)},30)}
 $('#bh').onclick=dica;
 $('#bf').onclick=()=>{st.flip=!st.flip;sqs();draw();clk()};
