@@ -57,6 +57,7 @@ h1,.bx h2{font:800 15px system-ui;letter-spacing:.38em;background:linear-gradien
 <div class="ov" id="end"><div class="bx gl"><h2 id="et" style="letter-spacing:.05em"></h2><p id="es"></p><button class="go" id="re">Revanche</button><button class="go s" id="cp2">Copiar PGN</button><button class="go s" id="em">Menu</button></div></div>
 <div class="ov" id="pro"><div class="bx gl"><h2>PROMOVER PARA</h2><div class="rw" id="pr"></div></div></div>
 <script>
+function QP(){const q=new URLSearchParams(location.search);try{const sp=(window.Telegram&&Telegram.WebApp.initDataUnsafe.start_param)||new URLSearchParams(location.hash.slice(1)).get('tgWebAppStartParam')||'';const a=sp.split('_');if(a[0]=='x'&&a[1])q.set('h',a[1]);else if(a[0]=='s'&&a[1]){q.set('sala',a[1]);q.set('e',a[2]||0);if(a[3])q.set('h',a[3])}}catch(e){}return q}
 const $=q=>document.querySelector(q),TG=window.Telegram&&Telegram.WebApp,LS=localStorage,F='abcdefgh',VAL=[0,100,320,330,500,900,0],G=['♟','♞','♝','♜','♛','♚'].map(x=>x+'\uFE0E');
 try{TG&&(TG.ready(),TG.expand(),TG.setHeaderColor('#07081a'),TG.setBackgroundColor('#07081a'))}catch(e){}
 const N=[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]],D=[[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]],M=Array(64).fill(0),IN=(y,x)=>y>=0&&y<8&&x>=0&&x<8;
@@ -175,7 +176,7 @@ bd.addEventListener('pointermove',e=>{if(!drag||!drag.el)return;if(!drag.mv&&Mat
  const r=bd.getBoundingClientRect(),w=r.width/8;drag.el.classList.add('dr');drag.el.style.transform='translate('+(e.clientX-r.left-w/2)+'px,'+(e.clientY-r.top-w/2)+'px)'});
 bd.addEventListener('pointerup',e=>{if(!drag)return;const d=drag;drag=null;if(!d.el)return;d.el.classList.remove('dr');d.el.style.transform='';if(d.mv){const i=sqAt(e);if(i>=0&&i!==d.i)tryMove(d.i,i)}});
 $('#bu').onclick=()=>{if(st.busy||!mv.length||st.mode=='on')return;rebuild(Math.max(0,mv.length-(st.mode=='ai'?(s.t==st.me||st.over?2:1):1)));st.go=true;save();next()};
-/*dica-ia*/const HR='https://ntfy.sh/',HQ=new URLSearchParams(location.search).get('h')||'',HID=Math.random().toString(36).slice(2,8);let hb=0;
+/*dica-ia*/const HR='https://ntfy.sh/',HQ=QP().get('h')||'',HID=Math.random().toString(36).slice(2,8);let hb=0;
 const uci=m=>F[m.f&7]+(8-(m.f>>3))+F[m.t&7]+(8-(m.t>>3))+(m.p?'nbrq'[m.p-2]:'');
 function fen(){let r='';for(let y=0;y<8;y++){let e=0;for(let x=0;x<8;x++){const v=s.b[y*8+x];if(!v)e++;else{if(e){r+=e;e=0}r+=(v>0?'PNBRQK':'pnbrqk')[Math.abs(v)-1]}}if(e)r+=e;if(y<7)r+='/'}
  return r+' '+(s.t>0?'w':'b')+' '+(['K','Q','k','q'].filter((_,i)=>s.cs>>i&1).join('')||'-')+' '+(s.ep>=0?F[s.ep&7]+(8-(s.ep>>3)):'-')+' '+s.h+' '+(1+(mv.length>>1))}
@@ -206,7 +207,7 @@ $('#re').onclick=()=>{$('#end').classList.remove('on');newGame()};
 $('#cp2').onclick=()=>{let r='';sans.forEach((x,i)=>{if(i%2==0)r+=(i/2+1)+'. ';r+=x+' '});r+=st.res;try{navigator.clipboard.writeText(r);$('#es').textContent='PGN copiado.'}catch(e){prompt('PGN',r)}};
 setInterval(()=>{if(!st.tm||!st.go||st.over)return;const i=s.t>0?0:1;st.cl[i]-=250;if(st.cl[i]<=0){st.cl[i]=0;clk();return fim({r:'time',w:-s.t})}clk()},250);
 /* ===== online 1v1 (relay ntfy) ===== */
-const R=[],PID=LS.xp||(LS.xp=Math.random().toString(36).slice(2,10)),Q2=new URLSearchParams(location.search),RELAY='https://ntfy.sh/',seen=new Set();
+const R=[],PID=LS.xp||(LS.xp=Math.random().toString(36).slice(2,10)),Q2=QP(),RELAY='https://ntfy.sh/',seen=new Set();
 let TOP='',ES;
 const pub=o=>{try{fetch(RELAY+TOP,{method:'POST',body:JSON.stringify(o)}).catch(()=>{})}catch(e){}};
 function seat(){const i=R.findIndex(r=>r.p==PID);st.me=i==0?1:i==1?-1:0;st.flip=st.me==-1;sqs();draw();next()}
