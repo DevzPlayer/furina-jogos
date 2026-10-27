@@ -26,7 +26,7 @@ h1,.bx h2{font:800 15px system-ui;letter-spacing:.38em;background:linear-gradien
 #sq{position:absolute;inset:0;display:grid;grid:repeat(8,1fr)/repeat(8,1fr)}#pl{position:absolute;inset:0}
 .q{position:relative}.l{background:var(--l)}.d{background:var(--d)}
 .q i,.q b{position:absolute;font:700 9px system-ui;font-style:normal;opacity:.75}.q i{left:3px;top:2px}.q b{right:3px;bottom:1px}.l i,.l b{color:var(--d)}.d i,.d b{color:var(--l)}
-.last{box-shadow:inset 0 0 0 99px #ffd76a66}.sel{box-shadow:inset 0 0 0 99px #7cf5ffaa}.hint{box-shadow:inset 0 0 0 3px #39ff88,inset 0 0 10px 3px #39ff88aa;animation:hp .9s ease-in-out infinite alternate}@keyframes hp{to{box-shadow:inset 0 0 0 3px #7dffb0,inset 0 0 22px 7px #39ff88}}
+.last{box-shadow:inset 0 0 0 99px #ffd76a66}.sel{box-shadow:inset 0 0 0 99px #7cf5ffaa}.hint{box-shadow:inset 0 0 0 3px #39ff88,inset 0 0 16px 5px #39ff88cc}.p{will-change:transform}
 .chk{background:radial-gradient(circle,#ff2d55 0,#ff2d5500 75%)!important}
 .mv:after,.cp:after{content:"";position:absolute;border-radius:50%}.mv:after{inset:37%;background:#0a0c1c80}.cp:after{inset:5%;border:4px solid #0a0c1c80}
 .p{position:absolute;left:0;top:0;width:12.5%;height:12.5%;display:flex;align-items:center;justify-content:center;font:calc(var(--s)/8*.84)/1 "Noto Sans Symbols 2","Segoe UI Symbol","Apple Symbols",sans-serif;transform:translate(calc(var(--x)*100%),calc(var(--y)*100%));transition:transform .22s cubic-bezier(.3,.9,.3,1),opacity .2s;pointer-events:none;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 2px #0009)}
@@ -187,7 +187,7 @@ function dica(){if(!canMove()||hb)return;hb=1;say('🧠 Analisando com a IA…')
   const fin=o=>{if(ok)return;ok=1;es.close();if(!o)return loc('IA indisponível: dica da engine');hb=0;if(mv.length!=n)return;
    if(!o.ok)return say(o.t||'Dica não permitida');
    const m=lg.find(x=>uci(x)==o.m);if(!m)return loc('Dica da engine');
-   st.hint=[m.f,m.t];marks();say('💡 Dica no tabuleiro');$('#tip').textContent='🧠 '+o.t;$('#tip').style.display='block'};
+   st.hint=[m.f,m.t];marks();say('');$('#tip').textContent='🧠 '+o.t;$('#tip').style.display='block'};
   es.onmessage=v=>{try{const d=JSON.parse(v.data);if(d.event=='message')fin(JSON.parse(d.message))}catch(x){}};
   fetch(HR+'fjh-'+HQ,{method:'POST',body:JSON.stringify({rid,mode:st.mode,fen:fen(),lg:lg.map(uci),eng:eu,last:sans.slice(-6).join(' ')})}).catch(()=>fin(0));
   setTimeout(()=>fin(0),32000)},30)}
